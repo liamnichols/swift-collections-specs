@@ -1,0 +1,36 @@
+name: "Continuous Integration"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  macos:
+    name: macOS (Xcode ${{ matrix.xcode }})
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["13.4.1", "14.1"]
+        include:
+          - xcode: "13.4.1"
+            macos: macOS-12
+          - xcode: "14.1"
+            macos: macOS-12
+    runs-on: ${{ matrix.macos }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Lint Spec Repo
+        run: bundle exec pod repo lint
